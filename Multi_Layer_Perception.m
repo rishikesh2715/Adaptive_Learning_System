@@ -1,29 +1,54 @@
-FEEDFORWARD NEURAL NETWORK
-To create a feedforward backpropagation network we can use NEWFF 
+% Define the input and target data
+inputs = [0 0; 0 1; 1 0; 1 1]';  % Transposed to match MATLAB's format
+targets = [0 1 1 0]; % Logical XOR output
 
-   Syntax
+% Create a feedforward network with one hidden layer containing 2 neurons
+% Using 'tansig' as transfer function for the hidden layer and 'purelin' for the output layer
+hiddenLayerSize = 4;
+net = feedforwardnet(hiddenLayerSize, 'trainlm');
 
-   net = newff(PR,[S1 S2...SNl],{TF1 TF2...TFNl},BTF,BLF,PF) 
-   Description
+% Set the transfer function for the hidden layer and the output layer
+net.layers{1}.transferFcn = 'tansig';
+net.layers{2}.transferFcn = 'purelin';
 
-       NEWFF(PR,[S1 S2...SNl],{TF1 TF2...TFNl},BTF,BLF,PF) takes,
-         PR  - Rx2 matrix of min and max values for R input elements.
-         Si  - Size of ith layer, for Nl layers.
-         TFi - Transfer function of ith layer, default = 'tansig'.
-         BTF - Backprop network training function, default = 'trainlm'.
-         BLF - Backprop weight/bias learning function, default = 'learngdm'.
-         PF  - Performance function, default = 'mse'.
-       and returns an N layer feed-forward backprop network.
+% Configure the neural network for this dataset
+net = configure(net, inputs, targets);
 
-Consider this set of data:
-p=[-1 -1 2 2;0 5  0 5]
-t =[-1 -1 1 1]
-where p is input vector and t is target.
+% Set up Division of Data for Training, Validation, Testing
+net.divideParam.trainRatio = 70/100;
+net.divideParam.valRatio = 15/100;
+net.divideParam.testRatio = 15/100;
 
-Suppose we want to create feed forward neural net with one hidden layer,  3 nodes in hidden layer, with tangent sigmoid as transfer function in hidden layer and linear function for output layer, and with gradient descent with momentum backpropagation training function, just simply use the following commands:
+% Train the network
+[net, tr] = train(net, inputs, targets);
 
-» net=newff([-1 2;0 5],[3 1],{'tansig' 'purelin'},’traingdm’);
+% Test the network
+outputs = net(inputs);
 
-Note that the first input [-1 2;0 5] is the minimum  and maximum values of vector p. We might use minmax(p) , especially for large data set, then the command becomes:
+% Calculate errors
+errors = gsubtract(targets, outputs);
 
-»net=newff(minmax(p),[3 1],{'tansig' 'purelin'},’traingdm’);
+% View the network
+view(net);
+
+% Assess the performance: mean squared error
+performance = perform(net, targets, outputs);
+
+% Convert continuous outputs to binary to compare with the binary targets
+binaryOutput = outputs > 0.5;
+
+% Check if outputs match targets
+isCorrect = binaryOutput == targets;
+accuracy = sum(isCorrect) / length(isCorrect);
+fprintf('Accuracy: %.2f%%\n', accuracy * 100);
+
+% Display the outputs with the corresponding inputs
+disp('Input 1 | Input 2 | Output | Target');
+for i = 1:size(inputs, 2)
+    fprintf('    %d    |    %d    |  %.4f  |   %d\n', inputs(1,i), inputs(2,i), outputs(i), targets(i));
+end
+
+% Check if the output is correctly classifying the input
+correctness = binaryOutput == targets;
+disp('Correctness of each input:');
+disp(correctness);
