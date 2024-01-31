@@ -13,7 +13,7 @@ else
     [x, ~] = simplecluster_dataset;
 end
 
-% SOM parameters
+% SOM params
 dimensions = [8 8];
 coverSteps = 100;
 initNeighbor = 3;
@@ -27,7 +27,7 @@ selfOrgMap = selforgmap(dimensions, coverSteps, initNeighbor, topologyFcn, dista
 selfOrgMap.trainParam.epochs = 500;
 selfOrgMap = train(selfOrgMap, x);
 
-% Visualization based on selected dataset
+% Visualization SOM 
 figure, plotsompos(selfOrgMap, x), title([datasetName ' Dataset - Neuron Positions']);
 figure, plotsomhits(selfOrgMap, x), title([datasetName ' Dataset - SOM Hit Map']);
 figure, plotsomnd(selfOrgMap), title([datasetName ' Dataset - Neuron Distances']);
