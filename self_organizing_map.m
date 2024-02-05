@@ -2,32 +2,33 @@
 clear; 
 close all;
 
-%choose which dataset to use
-%datasetName = 'iris';
-datasetName = 'simplecluster';
-
-% Load the dataset
-if strcmp(datasetName, 'iris')
-    [x, ~] = iris_dataset;
-else 
-    [x, ~] = simplecluster_dataset;
-end
+%dataset to use
+[x, ~] = iris_dataset;
+%[x, ~] = simplecluster_dataset;
 
 % SOM params
-dimensions = [8 8];
+dimensions = [10 10];
 coverSteps = 100;
 initNeighbor = 3;
 topologyFcn = 'hextop';
 distanceFcn = 'linkdist';
 
-% Create SOM
+% create the network
 selfOrgMap = selforgmap(dimensions, coverSteps, initNeighbor, topologyFcn, distanceFcn);
 
-% Train SOM
-selfOrgMap.trainParam.epochs = 500;
+% train the network
 selfOrgMap = train(selfOrgMap, x);
 
-% Visualization SOM 
-figure, plotsompos(selfOrgMap, x), title([datasetName ' Dataset - Neuron Positions']);
-figure, plotsomhits(selfOrgMap, x), title([datasetName ' Dataset - SOM Hit Map']);
-figure, plotsomnd(selfOrgMap), title([datasetName ' Dataset - Neuron Distances']);
+% test the network
+y = selfOrgMap(x);
+
+% view the network
+view(selfOrgMap)
+
+% visualization
+figure, plotsomtop(selfOrgMap);
+figure, plotsomnc(selfOrgMap);
+figure, plotsomnd(selfOrgMap);
+figure, plotsomplanes(selfOrgMap);
+figure, plotsomhits(selfOrgMap,x);
+figure, plotsompos(selfOrgMap,x);
